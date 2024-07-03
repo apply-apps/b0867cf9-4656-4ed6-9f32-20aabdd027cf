@@ -1,53 +1,99 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Filename: index.js
+// Combined code from all files
 
-const App = () => {
-  const fullText = 'Hi, this is Apply.\nCreating mobile apps is now as simple as typing text.\nJust input your idea and press APPLY, and our platform does the rest...';
-  const [displayedText, setDisplayedText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+import React from 'react';
+import { SafeAreaView, StyleSheet, Text, View, Button, FlatList, TouchableOpacity } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-  useEffect(() => {
-    if (isPaused) return;
+const tales = [
+  { id: '1', title: 'The Tortoise and the Hare', content: 'Once upon a time...' },
+  { id: '2', title: 'The Boy Who Cried Wolf', content: 'Long ago, there was...' },
+  { id: '3', title: 'Cinderella', content: 'In a faraway land...' },
+];
 
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + fullText[index]);
-      setIndex((prev) => {
-        if (prev === fullText.length - 1) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setDisplayedText('');
-            setIndex(0);
-            setIsPaused(false);
-          }, 2000);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [index, isPaused]);
+const HomeScreen = ({ navigation }) => {
+  const renderTaleItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.taleItem}
+      onPress={() => navigation.navigate('Tale', { tale: item })}
+    >
+      <Text style={styles.taleTitle}>{item.title}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{displayedText}</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>Tales Collection</Text>
+      <FlatList
+        data={tales}
+        renderItem={renderTaleItem}
+        keyExtractor={(item) => item.id}
+      />
+    </SafeAreaView>
   );
 };
+
+const TaleScreen = ({ route }) => {
+  const { tale } = route.params;
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>{tale.title}</Text>
+      <Text style={styles.content}>{tale.content}</Text>
+    </SafeAreaView>
+  );
+};
+
+const Stack = createStackNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Tale" component={TaleScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-    padding: 20,
+    marginTop: 20,
   },
-  text: {
-    color: 'white',
+  title: {
     fontSize: 24,
-    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 20,
+  },
+  taleItem: {
+    padding: 15,
+    marginVertical: 8,
+    backgroundColor: '#f9c2ff',
+    borderRadius: 10,
+  },
+  taleTitle: {
+    fontSize: 18,
+  },
+  content: {
+    fontSize: 18,
+    lineHeight: 24,
+  },
+  taleItem: {
+    padding: 15,
+    marginVertical: 8,
+    backgroundColor: '#f9c2ff',
+    borderRadius: 10,
+  },
+  taleTitle: {
+    fontSize: 18,
   },
 });
-
-export default App;
